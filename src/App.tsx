@@ -46,14 +46,15 @@ function App() {
             build.geometry.map((node) => Object.values(node).reverse()),
           ];
         }
-        // if (build.type === "relation") {
-        //   if (build && build.members && build.members.length) {
-        //     const mappedCoords = build.members
-        //       .find((member) => ["outer", "outline"].includes(member.role))
-        //       .geometry.reverse();
-        //     geometry.coordinates = [mappedCoords];
-        //   }
-        // }
+        if (build.type === "relation" && build.members?.length) {
+          const outerLine = build.members.find((member) =>
+            ["outer", "outline"].includes(member.role)
+          );
+          const mappedCoords =
+            outerLine?.geometry.map((node) => Object.values(node).reverse()) ||
+            [];
+          geometry.coordinates = [mappedCoords];
+        }
         return preparedBuild;
       })
       .filter((build) => build);
