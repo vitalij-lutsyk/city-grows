@@ -1,31 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
 import { urls } from "./constants/base-urls";
 import Map from "./components/Map";
 import { Feature, Geometry, Polygon } from "geojson";
 import { OverpassApiRes } from "./interfaces/api-response";
+import { Circles } from "react-loader-spinner";
 
 interface Buildings {
-  [key: number]: Feature<Geometry>
+  [key: number]: Feature<Geometry>;
 }
 
 function App() {
   const [buildings, setBuildings] = useState<Buildings>({});
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (Object.keys(buildings).length) {
+      setLoading(false);
+    }
+  }, [buildings])
+
   const getBuildings = async (mapBoundaries: string) => {
-    console.log(`mapBoundaries`, mapBoundaries)
-    if (!mapBoundaries) return;
     setLoading(true);
-    const res = await axios.get(urls.overpassApi(mapBoundaries));
-    console.log(`buildings`, buildings)
-    setBuildings(prepareBuildings(res.data));
-    setTimeout(() => setLoading(false), 100);
+    axios.get(urls.overpassApi(mapBoundaries)).then((res) => {
+      setBuildings(prepareBuildings(res.data));
+    });
   };
 
   const prepareBuildings = (data: OverpassApiRes): Buildings => {
-    console.log(`data`, data)
     const { elements: buildings } = data;
     const preparedBuildings = buildings
       .map((build) => {
@@ -65,7 +68,29 @@ function App() {
 
   return (
     <div className="App">
-      <Map buildings={(buildings as Feature[])} getBuildings={getBuildings} filter={[0, 2021]} />
+      {loading && (
+        <div
+          style={{
+            position: "fixed",
+            left: 0,
+            top: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.1)",
+            zIndex: 100,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Circles arialLabel="loading-indicator" />
+        </div>
+      )}
+      <Map
+        buildings={buildings}
+        getBuildings={getBuildings}
+        filter={[0, 2021]}
+      />
     </div>
   );
 }
