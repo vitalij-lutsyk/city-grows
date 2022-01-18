@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import "./App.css";
 import { urls } from "./constants/base-urls";
@@ -6,6 +6,7 @@ import Map from "./components/Map";
 import { Feature, Geometry, Polygon } from "geojson";
 import { OverpassApiRes } from "./interfaces/api-response";
 import { Circles } from "react-loader-spinner";
+import YearsFilter from "./components/Slider";
 
 interface Buildings {
   [key: number]: Feature<Geometry>;
@@ -13,13 +14,19 @@ interface Buildings {
 
 function App() {
   const [buildings, setBuildings] = useState<Buildings>({});
+  const [filter, setFilter] = useState<[number, number]>([
+    0,
+    new Date().getFullYear(),
+  ]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (Object.keys(buildings).length) {
-      setLoading(false);
-    }
-  }, [buildings])
+    const _buildings = Object.values(buildings);
+    const years = _buildings.map((build) => build.properties.start_date);
+    const min = Math.min(...years);
+    const max = Math.max(...years);
+    setFilter([min, max]);
+  }, [buildings]);
 
   const getBuildings = async (mapBoundaries: string) => {
     setLoading(true);
@@ -70,6 +77,19 @@ function App() {
     return buildingsToAdd;
   };
 
+  const getYears = (buildings: Buildings): Array<number> => {
+    const result: { [key: string]: any } = {};
+    Object.values(buildings)
+      .map((build) => build.properties.start_date)
+      .forEach((curr) => {
+        if (isNaN(curr) || result.hasOwnProperty(curr)) {
+          return;
+        }
+        result[curr] = curr;
+      });
+    return Object.values(result);
+  };
+  const years = useMemo(() => getYears(buildings), [buildings]);
   return (
     <div className="App">
       {loading && (
@@ -90,10 +110,15 @@ function App() {
           <Circles arialLabel="loading-indicator" />
         </div>
       )}
+      <YearsFilter
+        value={filter}
+        setValue={(_, value) => setFilter((value as [number, number]))}
+        options={years}
+      />
       <Map
         buildings={buildings}
         getBuildings={getBuildings}
-        filter={[0, 2021]}
+        filter={filter}
       />
     </div>
   );

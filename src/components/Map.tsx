@@ -7,19 +7,12 @@ import { urls } from "../constants/base-urls";
 import { getPeriodsWithStylesByYear, periodsByFirstYear } from "../data/periods";
 import { debounce } from "../utils/debounce";
 import { Feature, FeatureCollection, GeoJsonObject, Geometry } from "geojson";
-// L.Icon.Default.imagePath = ".";
-// // delete L.Icon.Default.prototype._getIconUrl
-// L.Icon.Default.mergeOptions({
-//   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-//   iconUrl: require("leaflet/dist/images/marker-icon.png"),
-//   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-// });
 
 interface Buildings {
   [key: number]: Feature<Geometry>
 }
 
-interface LL {
+interface LL { // TODO: rename
   [key: number]: LayerGroup
 }
 
@@ -36,11 +29,11 @@ function MapComponent(props: MapProps) {
   const [geojsonLayer, setGeojsonLayer] = useState<GeoJSON | null>(null);
   const [legend, setLegend] = useState<Control | null>(null);
   const [mapLayerGroups, setMapLayerGroups] = useState<LL>({});
-  // const [debounceFn, setDebounceFn] = useState<Function | null>(null);
+  let debounceFn: Function | null = null;
 
-  // useEffect(() => {
-  //   handleFilterChange();
-  // }, [props.filter]);
+  useEffect(() => {
+    handleFilterChange();
+  }, [props.filter]);
 
   useEffect(() => {
     if (!map) {
@@ -215,15 +208,15 @@ function MapComponent(props: MapProps) {
     lg.addLayer(featureLayer);
   };
 
-  // const showLayer = (id: number) => {
-  //   const lg = mapLayerGroups[id];
-  //   map?.addLayer(lg);
-  // };
+  const showLayer = (id: number) => {
+    const lg = mapLayerGroups[id];
+    map?.addLayer(lg);
+  };
 
-  // const hideLayer = (id: number) => {
-  //   const lg = mapLayerGroups[id];
-  //   map?.removeLayer(lg);
-  // };
+  const hideLayer = (id: number) => {
+    const lg = mapLayerGroups[id];
+    map?.removeLayer(lg);
+  };
 
   const addDataToGeojson = (buildings: Array<Feature>) => {
     const buildingsToAdd: Array<GeoJsonObject> = buildings.filter(
@@ -240,23 +233,23 @@ function MapComponent(props: MapProps) {
     await getBuildings(mapBoundaries);
   };
 
-  // const filterBuildings = () => {
-  //   const [min = 0, max = 0] = filter;
-  //   Object.values(buildings).forEach(({ properties }) => {
-  //     if (max >= +properties?.start_date && min <= +properties?.start_date) {
-  //       showLayer(properties?.id);
-  //     } else {
-  //       hideLayer(properties?.id);
-  //     }
-  //   });
-  // };
+  const filterBuildings = () => {
+    const [min = 0, max = 0] = filter;
+    Object.values(buildings).forEach(({ properties }) => {
+      if (max >= +properties?.start_date && min <= +properties?.start_date) {
+        showLayer(properties?.id);
+      } else {
+        hideLayer(properties?.id);
+      }
+    });
+  };
 
-  // const handleFilterChange = () => {
-  //   if (!debounceFn) {
-  //     setDebounceFn(debounce(filterBuildings, 60));
-  //   }
-  //   debounceFn && debounceFn();
-  // };
+  const handleFilterChange = () => {
+    if (!debounceFn) {
+      debounceFn = debounce(filterBuildings, 60);
+    }
+    debounceFn && debounceFn();
+  };
 
   return <div id="map"></div>;
 }
