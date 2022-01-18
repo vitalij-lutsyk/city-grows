@@ -68,7 +68,7 @@ function App() {
         }
         return preparedBuild;
       })
-      .filter((build) => build);
+      .filter((build) => build.properties?.start_date.length < 5);
     const buildingsToAdd: Buildings = {};
     preparedBuildings.forEach((build) => {
       if (build) {
