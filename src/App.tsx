@@ -23,9 +23,12 @@ function App() {
 
   const getBuildings = async (mapBoundaries: string) => {
     setLoading(true);
-    axios.get(urls.overpassApi(mapBoundaries)).then((res) => {
-      setBuildings(prepareBuildings(res.data));
-    });
+    axios
+      .get(urls.overpassApi(mapBoundaries))
+      .then((res) => {
+        setBuildings(prepareBuildings(res.data));
+      })
+      .finally(() => setLoading(false));
   };
 
   const prepareBuildings = (data: OverpassApiRes): Buildings => {
@@ -78,7 +81,7 @@ function App() {
             width: "100%",
             height: "100%",
             backgroundColor: "rgba(0,0,0,0.1)",
-            zIndex: 100,
+            zIndex: 1001,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
