@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { defaultStartPoint } from "../constants/default-start-point";
+import { useSearchParams } from "react-router-dom";
 
-import 'leaflet/dist/leaflet.css'
-import L, { LatLngBoundsLiteral, Layer, LayerGroup, Map, GeoJSON, Control } from "leaflet";
+import "leaflet/dist/leaflet.css";
+import L, {
+  LatLngBoundsLiteral,
+  Layer,
+  LayerGroup,
+  Map,
+  GeoJSON,
+  Control,
+} from "leaflet";
 import { urls } from "../constants/base-urls";
-import { getPeriodsWithStylesByYear, periodsByFirstYear } from "../data/periods";
+import {
+  getPeriodsWithStylesByYear,
+  periodsByFirstYear,
+} from "../data/periods";
 import { debounce } from "../utils/debounce";
 import { Feature, FeatureCollection, GeoJsonObject, Geometry } from "geojson";
 
 interface Buildings {
-  [key: number]: Feature<Geometry>
+  [key: number]: Feature<Geometry>;
 }
 
-interface LL { // TODO: rename
-  [key: number]: LayerGroup
+interface MapLayerGroups {
+  [key: number]: LayerGroup;
 }
 
 interface MapProps {
@@ -28,8 +39,9 @@ function MapComponent(props: MapProps) {
   const [map, setMap] = useState<Map | null>(null);
   const [geojsonLayer, setGeojsonLayer] = useState<GeoJSON | null>(null);
   const [legend, setLegend] = useState<Control | null>(null);
-  const [mapLayerGroups, setMapLayerGroups] = useState<LL>({});
+  const [mapLayerGroups] = useState<MapLayerGroups>({});
   let debounceFn: Function | null = null;
+  let [, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     handleFilterChange();
@@ -40,11 +52,11 @@ function MapComponent(props: MapProps) {
       return;
     }
     if (!geojsonLayer) {
-      createPolygonsLayer(buildings)
+      createPolygonsLayer(buildings);
     } else {
-      addDataToGeojson(Object.values(buildings))
+      addDataToGeojson(Object.values(buildings));
     }
-  }, [buildings, map])
+  }, [buildings, map]);
 
   useEffect(() => {
     const _map = createMap();
@@ -56,8 +68,6 @@ function MapComponent(props: MapProps) {
     lng: number;
     zoom: number;
   } => {
-    const urlParametersRegex = /(\?|\&)([^=]+)\=([^&]+)/gi;
-    // const digitsRegex = /[-]{0,1}[\d]*[.]{0,1}[\d]+/g;
     const defaultLocation = {
       lat: defaultStartPoint.lat,
       lng: defaultStartPoint.lng,
@@ -66,10 +76,12 @@ function MapComponent(props: MapProps) {
     if (!window.location.search) {
       return defaultLocation;
     }
-    const urlParameters = window.location.search.match(urlParametersRegex);
-    const lat = urlParameters?.find((param) => param.includes("lat")) || defaultLocation.lat;
-    const lng = urlParameters?.find((param) => param.includes("lng")) || defaultLocation.lng;
-    const zoom = urlParameters?.find((param) => param.includes("zoom")) || defaultLocation.zoom;
+
+    const params = new URL(document.location.href).searchParams;
+    const lat = params.get("lat");
+    const lng = params.get("lng");
+    const zoom = params.get("zoom");
+
     if (!lat || !lng || !zoom) {
       return defaultLocation;
     }
@@ -78,6 +90,16 @@ function MapComponent(props: MapProps) {
       lng: parseFloat(lng.toString()),
       zoom: parseInt(zoom.toString()),
     };
+  };
+
+  const updateUrlCoordinates = (map: Map) => {
+    if (!map) return;
+    const { lat, lng } = map.getCenter();
+    setSearchParams({
+      lat: lat.toString(),
+      lng: lng.toString(),
+      zoom: map.getZoom().toString(),
+    });
   };
 
   const createMap = () => {
@@ -92,14 +114,14 @@ function MapComponent(props: MapProps) {
 
     const tileLayer = L.tileLayer(urls.baseMap, {
       attribution: `&copy; <a href="${urls.osmCopyright}">OpenStreetMap</a> contributors`,
-    })
+    });
     tileLayer.addTo(_map);
     _map.on("dragend", () => handleMapMove(_map));
 
     setMap(_map);
+    updateUrlCoordinates(_map);
     fetchBuildings(_map);
     return _map;
-    // updateUrlCoordinates();
   };
   const createLegend = (map: Map) => {
     if (legend) {
@@ -124,11 +146,11 @@ function MapComponent(props: MapProps) {
     _legend.addTo(map);
     setLegend(_legend);
   };
-  const handleMapMove = async (map: Map) => {
-    // updateUrlCoordinates();
+  const handleMapMove = async (_map: Map) => {
+    updateUrlCoordinates(_map);
     toggleLegendVisibility();
-    if (map.getZoom() <= 13) return;
-    await fetchBuildings(map);
+    if (_map.getZoom() <= 13) return;
+    await fetchBuildings(_map);
   };
   const toggleLegendVisibility = () => {
     const lvivBoundaries: LatLngBoundsLiteral = [
@@ -144,12 +166,6 @@ function MapComponent(props: MapProps) {
       legend?.remove();
     }
   };
-  // const updateUrlCoordinates = () => {
-  //   if (!map) return;
-  //   const { lat, lng } = map.getCenter();
-  //   const searchString = `?lat=${lat}&lng=${lng}&zoom=${map.getZoom()}`;
-  //   history.pushState({}, null, $route.path + searchString);
-  // };
 
   const getMapBoundaries = (map: L.Map) => {
     return Object.values(map?.getBounds() || [])
@@ -173,7 +189,7 @@ function MapComponent(props: MapProps) {
     // does layerGroup already exist? if not create it and add to map
     let lg = mapLayerGroups[feature.properties?.id];
     if (lg === undefined) {
-      lg = new LayerGroup(); // TODO: any
+      lg = new LayerGroup();
       // add the layer to the map
       if (map) {
         lg.addTo(map);
@@ -184,7 +200,8 @@ function MapComponent(props: MapProps) {
 
     // add the feature to the layer
     featureLayer
-      .bindPopup((layer: any) => { // TODO: any
+      .bindPopup((layer: any) => {
+        // TODO: any
         const {
           ["addr:housenumber"]: housenumber,
           ["addr:street"]: street,

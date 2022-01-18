@@ -7,6 +7,7 @@ import { Feature, Geometry, Polygon } from "geojson";
 import { OverpassApiRes } from "./interfaces/api-response";
 import { Circles } from "react-loader-spinner";
 import YearsFilter from "./components/Slider";
+import { BrowserRouter } from "react-router-dom";
 
 interface Buildings {
   [key: number]: Feature<Geometry>;
@@ -91,36 +92,38 @@ function App() {
   };
   const years = useMemo(() => getYears(buildings), [buildings]);
   return (
-    <div className="App">
-      {loading && (
-        <div
-          style={{
-            position: "fixed",
-            left: 0,
-            top: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0,0,0,0.1)",
-            zIndex: 1001,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Circles arialLabel="loading-indicator" />
-        </div>
-      )}
-      <YearsFilter
-        value={filter}
-        setValue={(_, value) => setFilter((value as [number, number]))}
-        options={years}
-      />
-      <Map
-        buildings={buildings}
-        getBuildings={getBuildings}
-        filter={filter}
-      />
-    </div>
+    <BrowserRouter>
+      <div className="App">
+        {loading && (
+          <div
+            style={{
+              position: "fixed",
+              left: 0,
+              top: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(0,0,0,0.1)",
+              zIndex: 1001,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Circles arialLabel="loading-indicator" />
+          </div>
+        )}
+        <YearsFilter
+          value={filter}
+          setValue={(_, value) => setFilter((value as [number, number]))}
+          options={years}
+        />
+        <Map
+          buildings={buildings}
+          getBuildings={getBuildings}
+          filter={filter}
+        />
+      </div>
+    </BrowserRouter>
   );
 }
 
