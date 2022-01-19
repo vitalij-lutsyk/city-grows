@@ -67,8 +67,8 @@ export default function YearsFilter(props: SliderProps) {
       zIndex={1000}
       pr={5}
       pl={2}
-      pt={1}
-      pb={1}
+      pt={3}
+      pb={3}
       style={{
         backgroundColor: `rgba(255, 255, 255, 0.61)`,
       }}

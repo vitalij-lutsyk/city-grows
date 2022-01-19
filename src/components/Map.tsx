@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "../styles/legend.css";
 import { defaultStartPoint } from "../constants/default-start-point";
 import { useSearchParams } from "react-router-dom";
 

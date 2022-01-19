@@ -4,7 +4,7 @@ import { Feature, Geometry, Polygon } from "geojson";
 import { BrowserRouter } from "react-router-dom";
 import { Circles } from "react-loader-spinner";
 
-import "./App.css";
+import "./styles/App.css";
 import { urls } from "./constants/base-urls";
 import Map from "./components/Map";
 import { OverpassApiRes } from "./interfaces/api-response";

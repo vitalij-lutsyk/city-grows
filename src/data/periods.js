@@ -2,7 +2,7 @@ import {
   defaultStyle,
   defaultPolygonStyle,
   defaultCircleStyle,
-} from "../constants/styles";
+} from "../styles/styles";
 
 const colors = {
   indigoDye: "#304966ff",
