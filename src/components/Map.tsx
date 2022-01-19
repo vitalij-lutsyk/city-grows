@@ -173,10 +173,10 @@ function MapComponent(props: MapProps) {
       .flat()
       .join(",");
   };
-  const createPolygonsLayer = (buildings: Buildings) => {
+  const createPolygonsLayer = (_buildings: Buildings) => {
     const geojson: FeatureCollection = {
       type: "FeatureCollection",
-      features: [...Object.values(buildings)],
+      features: [...Object.values(_buildings)],
     };
     const _geojsonLayer = new GeoJSON(geojson, {
       style: getPeriodsWithStylesByYear,
@@ -235,8 +235,8 @@ function MapComponent(props: MapProps) {
     map?.removeLayer(lg);
   };
 
-  const addDataToGeojson = (buildings: Array<Feature>) => {
-    const buildingsToAdd: Array<GeoJsonObject> = buildings.filter(
+  const addDataToGeojson = (_buildings: Array<Feature>) => {
+    const buildingsToAdd: Array<GeoJsonObject> = _buildings.filter(
       (build) => !mapLayerGroups[build.properties?.id]
     );
     geojsonLayer?.addData(buildingsToAdd as any); // TODO: any

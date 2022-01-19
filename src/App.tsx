@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import { Feature, Geometry, Polygon } from "geojson";
+import { BrowserRouter } from "react-router-dom";
+import { Circles } from "react-loader-spinner";
+
 import "./App.css";
 import { urls } from "./constants/base-urls";
 import Map from "./components/Map";
-import { Feature, Geometry, Polygon } from "geojson";
 import { OverpassApiRes } from "./interfaces/api-response";
-import { Circles } from "react-loader-spinner";
 import YearsFilter from "./components/Slider";
-import { BrowserRouter } from "react-router-dom";
 
 interface Buildings {
   [key: number]: Feature<Geometry>;
@@ -34,14 +35,14 @@ function App() {
     axios
       .get(urls.overpassApi(mapBoundaries))
       .then((res) => {
-        setBuildings(prepareBuildings(res.data));
+        setBuildings(buildings => Object.assign({}, buildings, prepareBuildings(res.data)));
       })
       .finally(() => setLoading(false));
   };
 
   const prepareBuildings = (data: OverpassApiRes): Buildings => {
-    const { elements: buildings } = data;
-    const preparedBuildings = buildings
+    const { elements: _buildings } = data;
+    const preparedBuildings = _buildings
       .map((build) => {
         const geometry: Polygon = {
           type: "Polygon",
@@ -68,19 +69,17 @@ function App() {
         }
         return preparedBuild;
       })
-      .filter((build) => build.properties?.start_date.length < 5);
+      .filter((build) => build?.properties?.start_date.length < 5);
     const buildingsToAdd: Buildings = {};
     preparedBuildings.forEach((build) => {
-      if (build) {
-        buildingsToAdd[build.properties?.id] = build;
-      }
+      buildingsToAdd[build.properties?.id] = build;
     });
     return buildingsToAdd;
   };
 
-  const getYears = (buildings: Buildings): Array<number> => {
+  const getYears = (_buildings: Buildings): Array<number> => {
     const result: { [key: string]: any } = {};
-    Object.values(buildings)
+    Object.values(_buildings)
       .map((build) => build.properties.start_date)
       .forEach((curr) => {
         if (isNaN(curr) || result.hasOwnProperty(curr)) {
