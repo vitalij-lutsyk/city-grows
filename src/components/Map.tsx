@@ -1,32 +1,28 @@
 import React, { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Feature, FeatureCollection, GeoJsonObject } from "geojson";
-import L, {
-  LatLngBoundsLiteral,
-  Layer,
-  LayerGroup,
-  Map,
-  GeoJSON,
-  Control,
-} from "leaflet";
+import L, { Layer, LayerGroup, Map, GeoJSON } from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 import "../styles/legend.css";
 import { defaultStartPoint } from "../constants/default-start-point";
 import { urls } from "../constants/base-urls";
-import {
-  getPeriodsWithStylesByYear,
-  periodsByFirstYear,
-} from "../data/periods";
+import { getPeriodsWithStylesByYear } from "../data/periods";
 import { debounce } from "../utils/debounce";
-import { Buildings, Location, MapLayerGroups, MapProps } from "../interfaces/map.interface";
+import {
+  Buildings,
+  Location,
+  MapLayerGroups,
+  MapProps,
+} from "../interfaces/map.interface";
+import { useLegend } from "./Legend";
 
 function MapComponent(props: MapProps) {
   const { buildings, filter = [0, 0], getBuildings } = props;
 
   const map = useRef<Map | null>(null);
   const geojsonLayer = useRef<GeoJSON | null>(null);
-  const legend = useRef<Control | null>(null);
+  const { legend, toggleLegendVisibility, createLegend } = useLegend();
   const mapLayerGroups = useRef<MapLayerGroups>({});
   let debounceFn: Function | null = null;
   let [, setSearchParams] = useSearchParams();
@@ -100,48 +96,11 @@ function MapComponent(props: MapProps) {
     return _map;
   };
 
-  const createLegend = (): Control => {
-    if (legend.current) {
-      return legend.current;
-    }
-    const _legend = L.control.attribution({ position: "bottomright" });
-    _legend.onAdd = function (map: Map) {
-      let div = L.DomUtil.create("div", "info legend");
-      const content = Object.values(periodsByFirstYear)
-        .map(
-          (item) =>
-            `<div class="legend-item">` +
-            `<div class="item-value" style="background-color:${item.color}">${item.from}-${item.to}</div>` +
-            `<div class="item-name">${item.name}</div>` +
-            `</div>`
-        )
-        .join("");
-      const contentWrapper = `<div class="legend-content">${content}</div>`;
-      div.innerHTML = contentWrapper;
-      return div;
-    };
-    return _legend;
-  };
-
   const handleMapMove = async (_map: Map) => {
     updateUrlCoordinates(_map);
     toggleLegendVisibility(_map);
     if (_map.getZoom() <= 13) return;
     await fetchBuildings(_map);
-  };
-
-  const toggleLegendVisibility = (_map: Map) => {
-    const lvivBoundaries: LatLngBoundsLiteral = [
-      [49.777384397005484, 23.9088249206543],
-      [49.894413228336724, 24.12769317626953],
-    ];
-    const lviv = L.rectangle(lvivBoundaries);
-    const mapIntersectsLviv = _map.getBounds().intersects(lviv.getBounds());
-    if (mapIntersectsLviv) {
-      legend?.current?.addTo(_map);
-    } else {
-      legend?.current?.remove();
-    }
   };
 
   const getMapBoundaries = (map: L.Map): string => {
@@ -214,9 +173,9 @@ function MapComponent(props: MapProps) {
   };
 
   const addDataToGeojson = (_buildings: Buildings): void => {
-    const buildingsToAdd: Array<GeoJsonObject> = Object.values(_buildings).filter(
-      (build) => !mapLayerGroups.current[build.properties?.id]
-    );
+    const buildingsToAdd: Array<GeoJsonObject> = Object.values(
+      _buildings
+    ).filter((build) => !mapLayerGroups.current[build.properties?.id]);
     geojsonLayer?.current?.addData(buildingsToAdd as any); // TODO: any
   };
 
