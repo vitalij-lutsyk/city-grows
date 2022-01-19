@@ -2,9 +2,9 @@ import { useRef } from "react";
 import { Feature, FeatureCollection, GeoJsonObject } from "geojson";
 import { Layer, LayerGroup, Map, GeoJSON } from "leaflet";
 
-import { urls } from "../constants/base-urls";
-import { getPeriodsWithStylesByYear } from "../data/periods";
-import { Buildings, MapLayerGroups } from "../interfaces/map.interface";
+import { urls } from "../../constants/base-urls";
+import { getPeriodsWithStylesByYear } from "../../data/periods";
+import { Buildings, MapLayerGroups } from "../../interfaces/map.interface";
 
 export const useBuildings = (
   map?: Map | null,

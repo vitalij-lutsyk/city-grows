@@ -12,8 +12,7 @@ import {
   MapLayerGroups,
   MapProps,
 } from "../interfaces/map.interface";
-import { useLegend } from "./Legend";
-import { useBuildings } from "./Buildings";
+import { useLegend, useBuildings } from "./hooks";
 
 function MapComponent(props: MapProps) {
   const { buildings, filter = [0, 0], getBuildings } = props;

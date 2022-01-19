@@ -1,7 +1,7 @@
 import L, { LatLngBoundsLiteral, Map, Control } from "leaflet";
 
-import "../styles/legend.css";
-import { periodsByFirstYear } from "../data/periods";
+import "../../styles/legend.css";
+import { periodsByFirstYear } from "../../data/periods";
 import { useRef } from "react";
 
 export const useLegend = () => {
