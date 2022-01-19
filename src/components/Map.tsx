@@ -1,9 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import "../styles/legend.css";
-import { defaultStartPoint } from "../constants/default-start-point";
+import React, { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-
-import "leaflet/dist/leaflet.css";
+import { Feature, FeatureCollection, GeoJsonObject } from "geojson";
 import L, {
   LatLngBoundsLiteral,
   Layer,
@@ -12,35 +9,25 @@ import L, {
   GeoJSON,
   Control,
 } from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+import "../styles/legend.css";
+import { defaultStartPoint } from "../constants/default-start-point";
 import { urls } from "../constants/base-urls";
 import {
   getPeriodsWithStylesByYear,
   periodsByFirstYear,
 } from "../data/periods";
 import { debounce } from "../utils/debounce";
-import { Feature, FeatureCollection, GeoJsonObject, Geometry } from "geojson";
-
-interface Buildings {
-  [key: number]: Feature<Geometry>;
-}
-
-interface MapLayerGroups {
-  [key: number]: LayerGroup;
-}
-
-interface MapProps {
-  buildings: Buildings;
-  getBuildings: Function;
-  filter: [number, number];
-}
+import { Buildings, Location, MapLayerGroups, MapProps } from "../interfaces/map.interface";
 
 function MapComponent(props: MapProps) {
   const { buildings, filter = [0, 0], getBuildings } = props;
 
-  const [map, setMap] = useState<Map | null>(null);
-  const [geojsonLayer, setGeojsonLayer] = useState<GeoJSON | null>(null);
+  const map = useRef<Map | null>(null);
+  const geojsonLayer = useRef<GeoJSON | null>(null);
   const legend = useRef<Control | null>(null);
-  const [mapLayerGroups] = useState<MapLayerGroups>({});
+  const mapLayerGroups = useRef<MapLayerGroups>({});
   let debounceFn: Function | null = null;
   let [, setSearchParams] = useSearchParams();
 
@@ -49,63 +36,51 @@ function MapComponent(props: MapProps) {
   }, [props.filter]);
 
   useEffect(() => {
-    if (!map) {
+    if (!map.current) {
       return;
     }
-    if (!geojsonLayer) {
-      createPolygonsLayer(buildings);
+    if (!geojsonLayer?.current) {
+      const _geojsonLayer = createPolygonsLayer(buildings);
+      geojsonLayer.current = _geojsonLayer;
     } else {
       addDataToGeojson(Object.values(buildings));
     }
-  }, [buildings, map]);
+  }, [buildings, map.current]);
 
   useEffect(() => {
     const _map = createMap();
-    createLegend(_map);
+    map.current = _map;
+    const _legend = createLegend();
+    legend.current = _legend;
+    _legend.addTo(_map);
   }, []);
 
-  const startLocation = (): {
-    lat: number;
-    lng: number;
-    zoom: number;
-  } => {
-    const defaultLocation = {
-      lat: defaultStartPoint.lat,
-      lng: defaultStartPoint.lng,
-      zoom: 17,
-    };
-    if (!window.location.search) {
-      return defaultLocation;
-    }
-
+  const startLocation = (): Location => {
     const params = new URL(document.location.href).searchParams;
     const lat = params.get("lat");
     const lng = params.get("lng");
     const zoom = params.get("zoom");
 
-    if (!lat || !lng || !zoom) {
-      return defaultLocation;
-    }
     return {
-      lat: parseFloat(lat.toString()),
-      lng: parseFloat(lng.toString()),
-      zoom: parseInt(zoom.toString()),
+      lat: lat ? parseFloat(lat.toString()) : defaultStartPoint.lat,
+      lng: lng ? parseFloat(lng.toString()) : defaultStartPoint.lng,
+      zoom: zoom ? parseInt(zoom.toString()) : defaultStartPoint.zoom,
     };
   };
 
-  const updateUrlCoordinates = (map: Map) => {
-    if (!map) return;
-    const { lat, lng } = map.getCenter();
+  const updateUrlCoordinates = (_map: Map): void => {
+    if (!_map) return;
+    const { lat, lng } = _map.getCenter();
     setSearchParams({
       lat: lat.toString(),
       lng: lng.toString(),
-      zoom: map.getZoom().toString(),
+      zoom: _map.getZoom().toString(),
     });
   };
 
-  const createMap = () => {
-    if (map) {
-      return map;
+  const createMap = (): Map => {
+    if (map.current) {
+      return map.current;
     }
     const { lat, lng, zoom } = startLocation();
     const _map = new Map("map", { renderer: L.canvas() }).setView(
@@ -118,16 +93,16 @@ function MapComponent(props: MapProps) {
     });
     tileLayer.addTo(_map);
     _map.on("dragend", () => handleMapMove(_map));
-    _map.on('zoom', () => updateUrlCoordinates(_map));
+    _map.on("zoom", () => updateUrlCoordinates(_map));
 
-    setMap(_map);
     updateUrlCoordinates(_map);
     fetchBuildings(_map);
     return _map;
   };
-  const createLegend = (_map: Map) => {
+
+  const createLegend = (): Control => {
     if (legend.current) {
-      return;
+      return legend.current;
     }
     const _legend = L.control.attribution({ position: "bottomright" });
     _legend.onAdd = function (map: Map) {
@@ -145,15 +120,16 @@ function MapComponent(props: MapProps) {
       div.innerHTML = contentWrapper;
       return div;
     };
-    _legend.addTo(_map);
-    legend.current = _legend;
+    return _legend;
   };
+
   const handleMapMove = async (_map: Map) => {
     updateUrlCoordinates(_map);
     toggleLegendVisibility(_map);
     if (_map.getZoom() <= 13) return;
     await fetchBuildings(_map);
   };
+
   const toggleLegendVisibility = (_map: Map) => {
     const lvivBoundaries: LatLngBoundsLiteral = [
       [49.777384397005484, 23.9088249206543],
@@ -168,13 +144,14 @@ function MapComponent(props: MapProps) {
     }
   };
 
-  const getMapBoundaries = (map: L.Map) => {
+  const getMapBoundaries = (map: L.Map): string => {
     return Object.values(map?.getBounds() || [])
       .map((arr) => Object.values(arr).map((val) => val))
       .flat()
       .join(",");
   };
-  const createPolygonsLayer = (_buildings: Buildings) => {
+
+  const createPolygonsLayer = (_buildings: Buildings): GeoJSON => {
     const geojson: FeatureCollection = {
       type: "FeatureCollection",
       features: [...Object.values(_buildings)],
@@ -183,20 +160,20 @@ function MapComponent(props: MapProps) {
       style: getPeriodsWithStylesByYear,
       onEachFeature,
     });
-    setGeojsonLayer(_geojsonLayer);
+    return _geojsonLayer;
   };
-  // feature: geojson.Feature<geojson.GeometryObject, P>, layer: Layer
-  const onEachFeature = (feature: Feature, featureLayer: Layer) => {
+
+  const onEachFeature = (feature: Feature, featureLayer: Layer): void => {
     // does layerGroup already exist? if not create it and add to map
-    let lg = mapLayerGroups[feature.properties?.id];
+    let lg = mapLayerGroups.current[feature.properties?.id];
     if (lg === undefined) {
       lg = new LayerGroup();
       // add the layer to the map
-      if (map) {
-        lg.addTo(map);
+      if (map?.current) {
+        lg.addTo(map.current);
       }
       // store layer
-      mapLayerGroups[feature.properties?.id] = lg;
+      mapLayerGroups.current[feature.properties?.id] = lg;
     }
 
     // add the feature to the layer
@@ -226,32 +203,32 @@ function MapComponent(props: MapProps) {
     lg.addLayer(featureLayer);
   };
 
-  const showLayer = (id: number) => {
-    const lg = mapLayerGroups[id];
-    map?.addLayer(lg);
+  const showLayer = (id: number): void => {
+    const lg = mapLayerGroups.current[id];
+    map?.current?.addLayer(lg);
   };
 
-  const hideLayer = (id: number) => {
-    const lg = mapLayerGroups[id];
-    map?.removeLayer(lg);
+  const hideLayer = (id: number): void => {
+    const lg = mapLayerGroups.current[id];
+    map?.current?.removeLayer(lg);
   };
 
-  const addDataToGeojson = (_buildings: Array<Feature>) => {
-    const buildingsToAdd: Array<GeoJsonObject> = _buildings.filter(
-      (build) => !mapLayerGroups[build.properties?.id]
+  const addDataToGeojson = (_buildings: Buildings): void => {
+    const buildingsToAdd: Array<GeoJsonObject> = Object.values(_buildings).filter(
+      (build) => !mapLayerGroups.current[build.properties?.id]
     );
-    geojsonLayer?.addData(buildingsToAdd as any); // TODO: any
+    geojsonLayer?.current?.addData(buildingsToAdd as any); // TODO: any
   };
 
-  const fetchBuildings = async (map?: L.Map) => {
-    if (!map) {
+  const fetchBuildings = async (_map?: L.Map): Promise<void> => {
+    if (!_map) {
       return;
     }
-    const mapBoundaries = getMapBoundaries(map);
+    const mapBoundaries = getMapBoundaries(_map);
     await getBuildings(mapBoundaries);
   };
 
-  const filterBuildings = () => {
+  const filterBuildings = (): void => {
     const [min = 0, max = 0] = filter;
     Object.values(buildings).forEach(({ properties }) => {
       if (max >= +properties?.start_date && min <= +properties?.start_date) {
