@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../styles/legend.css";
 import { defaultStartPoint } from "../constants/default-start-point";
 import { useSearchParams } from "react-router-dom";
@@ -39,7 +39,7 @@ function MapComponent(props: MapProps) {
 
   const [map, setMap] = useState<Map | null>(null);
   const [geojsonLayer, setGeojsonLayer] = useState<GeoJSON | null>(null);
-  const [legend, setLegend] = useState<Control | null>(null);
+  const legend = useRef<Control | null>(null);
   const [mapLayerGroups] = useState<MapLayerGroups>({});
   let debounceFn: Function | null = null;
   let [, setSearchParams] = useSearchParams();
@@ -124,8 +124,8 @@ function MapComponent(props: MapProps) {
     fetchBuildings(_map);
     return _map;
   };
-  const createLegend = (map: Map) => {
-    if (legend) {
+  const createLegend = (_map: Map) => {
+    if (legend.current) {
       return;
     }
     const _legend = L.control.attribution({ position: "bottomright" });
@@ -144,27 +144,26 @@ function MapComponent(props: MapProps) {
       div.innerHTML = contentWrapper;
       return div;
     };
-    _legend.addTo(map);
-    setLegend(_legend);
+    _legend.addTo(_map);
+    legend.current = _legend;
   };
   const handleMapMove = async (_map: Map) => {
     updateUrlCoordinates(_map);
-    toggleLegendVisibility();
+    toggleLegendVisibility(_map);
     if (_map.getZoom() <= 13) return;
     await fetchBuildings(_map);
   };
-  const toggleLegendVisibility = () => {
+  const toggleLegendVisibility = (_map: Map) => {
     const lvivBoundaries: LatLngBoundsLiteral = [
       [49.777384397005484, 23.9088249206543],
       [49.894413228336724, 24.12769317626953],
     ];
     const lviv = L.rectangle(lvivBoundaries);
-
-    const mapIntersectsLviv = map?.getBounds().intersects(lviv.getBounds());
-    if (mapIntersectsLviv && map) {
-      legend?.addTo(map);
+    const mapIntersectsLviv = _map.getBounds().intersects(lviv.getBounds());
+    if (mapIntersectsLviv) {
+      legend?.current?.addTo(_map);
     } else {
-      legend?.remove();
+      legend?.current?.remove();
     }
   };
 
