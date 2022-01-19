@@ -69,7 +69,16 @@ function App() {
         }
         return preparedBuild;
       })
-      .filter((build) => build?.properties?.start_date.length < 5);
+      .filter((build) => {
+        const startDate = build?.properties?.start_date + '';
+        if (!startDate) {
+          return false;
+        }
+        if (startDate.length !== 4 || isNaN(parseInt(startDate))) {
+          return false;
+        }
+        return true;
+      });
     const buildingsToAdd: Buildings = {};
     preparedBuildings.forEach((build) => {
       buildingsToAdd[build.properties?.id] = build;
@@ -87,7 +96,7 @@ function App() {
         }
         result[curr] = curr;
       });
-    return Object.values(result);
+    return Object.values(result).filter(year => year <= new Date().getFullYear());
   };
   const years = useMemo(() => getYears(buildings), [buildings]);
   return (
