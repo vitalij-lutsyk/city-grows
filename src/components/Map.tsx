@@ -118,6 +118,7 @@ function MapComponent(props: MapProps) {
     });
     tileLayer.addTo(_map);
     _map.on("dragend", () => handleMapMove(_map));
+    _map.on('zoom', () => updateUrlCoordinates(_map));
 
     setMap(_map);
     updateUrlCoordinates(_map);
