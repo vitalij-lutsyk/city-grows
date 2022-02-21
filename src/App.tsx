@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Feature, Geometry, Polygon } from "geojson";
 import { BrowserRouter } from "react-router-dom";
-import { Circles } from "react-loader-spinner";
 
 import "./styles/App.css";
 import { urls } from "./constants/base-urls";
 import Map from "./components/Map";
 import { OverpassApiRes } from "./interfaces/api-response";
 import YearsFilter from "./components/Slider";
+import { useSpinner } from './components/hooks';
 
 interface Buildings {
   [key: number]: Feature<Geometry>;
@@ -20,7 +20,7 @@ function App() {
     0,
     new Date().getFullYear(),
   ]);
-  const [loading, setLoading] = useState(false);
+  const Spinner = useSpinner();
 
   useEffect(() => {
     const _buildings = Object.values(buildings);
@@ -31,13 +31,13 @@ function App() {
   }, [buildings]);
 
   const getBuildings = async (mapBoundaries: string) => {
-    setLoading(true);
+    Spinner.show();
     axios
       .get(urls.overpassApi(mapBoundaries))
       .then((res) => {
         setBuildings(buildings => Object.assign({}, buildings, prepareBuildings(res.data)));
       })
-      .finally(() => setLoading(false));
+      .finally(Spinner.hide);
   };
 
   const prepareBuildings = (data: OverpassApiRes): Buildings => {
@@ -102,24 +102,7 @@ function App() {
   return (
     <BrowserRouter>
       <div className="App">
-        {loading && (
-          <div
-            style={{
-              position: "fixed",
-              left: 0,
-              top: 0,
-              width: "100%",
-              height: "100%",
-              backgroundColor: "rgba(0,0,0,0.1)",
-              zIndex: 1001,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Circles arialLabel="loading-indicator" />
-          </div>
-        )}
+        {Spinner.init()}
         <YearsFilter
           value={filter}
           setValue={(_, value) => setFilter((value as [number, number]))}
