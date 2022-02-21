@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import { Circles } from "react-loader-spinner";
+import { SpinnerContext } from "../context/spinner";
 
-export const useSpinner = () => {
-  const [visible, setVisible] = useState(false);
-
-  const show = () => setVisible(true);
-  const hide = () => setVisible(false);
-  const init = () => (
+const Spinner = () => {
+  const { visible } = useContext(SpinnerContext)
+  return (
     <div>
       {visible && (
         <div
@@ -28,5 +26,6 @@ export const useSpinner = () => {
       )}
     </div>
   );
-  return { show, hide, init };
 }
+
+export default Spinner;

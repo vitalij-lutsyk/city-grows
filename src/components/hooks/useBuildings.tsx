@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useContext, useRef } from "react";
 import {
   Feature,
   FeatureCollection,
@@ -12,11 +12,11 @@ import axios from "axios";
 import { urls } from "../../constants/base-urls";
 import { getPeriodsWithStylesByYear } from "../../data/periods";
 import { Buildings, MapLayerGroups } from "../../interfaces/map.interface";
-import { useSpinner } from "./useSpinner";
 import { OverpassApiRes } from "../../interfaces/api-response";
+import { SpinnerContext } from "../../context/spinner";
 
 export const useBuildings = () => {
-  const Spinner = useSpinner();
+  const spinner = useContext(SpinnerContext);
   const buildings = useRef<Buildings>({});
   const mapLayerGroups = useRef<MapLayerGroups>({});
   const layer = useRef<GeoJSON | null>(null);
@@ -97,7 +97,7 @@ export const useBuildings = () => {
   };
 
   const getBuildings = async (_map: Map, mapBoundaries: string) => {
-    Spinner.show();
+    spinner.show();
     const res = await axios.get(urls.overpassApi(mapBoundaries));
     const _buildings = prepareBuildings(res.data);
     if (!layer?.current) {
@@ -107,7 +107,7 @@ export const useBuildings = () => {
       addBuildingsToLayer(Object.values(_buildings));
     }
     buildings.current = Object.assign({}, buildings.current, _buildings);
-    Spinner.hide();
+    spinner.hide();
     return buildings.current;
   };
 
