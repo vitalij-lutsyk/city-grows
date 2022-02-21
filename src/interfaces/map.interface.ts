@@ -10,8 +10,7 @@ export interface MapLayerGroups {
 }
 
 export interface MapProps {
-  buildings: Buildings;
-  getBuildings: Function;
+  setYears: Function;
   filter: [number, number];
 }
 

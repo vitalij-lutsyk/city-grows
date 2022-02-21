@@ -7,51 +7,27 @@ import "../styles/legend.css";
 import { defaultStartPoint } from "../constants/default-start-point";
 import { urls } from "../constants/base-urls";
 import { debounce } from "../utils/debounce";
-import {
-  Location,
-  MapLayerGroups,
-  MapProps,
-} from "../interfaces/map.interface";
+import { Location, MapProps } from "../interfaces/map.interface";
 import { useLegend, useBuildings } from "./hooks";
 
 function MapComponent(props: MapProps) {
-  const { buildings, filter = [0, 0], getBuildings } = props;
+  const { filter = [0, 0], setYears } = props;
 
   const map = useRef<Map | null>(null);
-  const mapLayerGroups = useRef<MapLayerGroups>({});
 
-  const {
-    buildingsLayer,
-    createBuildingsLayer,
-    addBuildingsToLayer,
-    filterBuildings,
-  } = useBuildings(map?.current, mapLayerGroups?.current);
-  const { legend, toggleLegendVisibility, createLegend } = useLegend();
+  const { filterBuildings, getBuildings, getYears } = useBuildings();
+  const { toggleLegendVisibility, createLegend } = useLegend();
+  const [, setSearchParams] = useSearchParams();
   let debounceFn: Function | null = null;
-  let [, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     handleFilterChange();
   }, [props.filter]);
 
   useEffect(() => {
-    if (!map.current) {
-      return;
-    }
-    if (!buildingsLayer?.current) {
-      const _geojsonLayer = createBuildingsLayer(buildings);
-      buildingsLayer.current = _geojsonLayer;
-    } else {
-      addBuildingsToLayer(Object.values(buildings));
-    }
-  }, [buildings, map.current]);
-
-  useEffect(() => {
     const _map = createMap();
-    map.current = _map;
-    const _legend = createLegend();
-    legend.current = _legend;
-    _legend.addTo(_map);
+    createLegend(_map);
+    fetchBuildings(_map);
   }, []);
 
   const startLocation = (): Location => {
@@ -95,7 +71,7 @@ function MapComponent(props: MapProps) {
     _map.on("zoom", () => updateUrlCoordinates(_map));
 
     updateUrlCoordinates(_map);
-    fetchBuildings(_map);
+    map.current = _map;
     return _map;
   };
 
@@ -113,17 +89,20 @@ function MapComponent(props: MapProps) {
       .join(",");
   };
 
-  const fetchBuildings = async (_map?: L.Map): Promise<void> => {
-    if (!_map) {
-      return;
-    }
+  const fetchBuildings = async (_map: L.Map): Promise<void> => {
     const mapBoundaries = getMapBoundaries(_map);
-    await getBuildings(mapBoundaries);
+    const buildings = await getBuildings(_map, mapBoundaries);
+    const _years = getYears(buildings);
+    setYears(_years);
   };
 
   const handleFilterChange = () => {
     if (!debounceFn) {
-      debounceFn = debounce(() => filterBuildings(buildings, filter), 60);
+      debounceFn = debounce(() => {
+        if (map.current) {
+          filterBuildings(map.current, filter);
+        }
+      }, 60);
     }
     debounceFn && debounceFn();
   };

@@ -6,7 +6,10 @@ import { useRef } from "react";
 
 export const useLegend = () => {
   const legend = useRef<Control | null>(null);
-  const createLegend = (): Control => {
+  const createLegend = (map: Map): void => {
+    if(legend.current) {
+      return;
+    }
     const _legend = L.control.attribution({ position: "bottomright" });
     _legend.onAdd = function (map: Map) {
       let div = L.DomUtil.create("div", "info legend");
@@ -23,7 +26,8 @@ export const useLegend = () => {
       div.innerHTML = contentWrapper;
       return div;
     };
-    return _legend;
+    legend.current = _legend;
+    _legend.addTo(map);
   };
 
   const toggleLegendVisibility = (_map: Map) => {
@@ -39,5 +43,5 @@ export const useLegend = () => {
       legend?.current?.remove();
     }
   };
-  return { legend, toggleLegendVisibility, createLegend };
+  return { toggleLegendVisibility, createLegend };
 }
