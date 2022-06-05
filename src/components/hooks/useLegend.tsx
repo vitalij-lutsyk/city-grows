@@ -10,7 +10,7 @@ export const useLegend = () => {
     if(legend.current) {
       return;
     }
-    const _legend = L.control.attribution({ position: "bottomright" });
+    const _legend = L.control.attribution({ position: "topright" });
     _legend.onAdd = function (map: Map) {
       let div = L.DomUtil.create("div", "info legend");
       const content = Object.values(periodsByFirstYear)
