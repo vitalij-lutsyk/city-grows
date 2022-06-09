@@ -1,17 +1,10 @@
-import { Feature, Geometry } from "geojson";
+import { Feature, Polygon } from "geojson";
 import { LayerGroup } from "leaflet";
 
-export interface Buildings {
-  [key: number]: Feature<Geometry>;
-}
+export type Buildings = Array<Feature<Polygon>>;
 
 export interface MapLayerGroups {
   [key: number]: LayerGroup;
-}
-
-export interface MapProps {
-  setYears: Function;
-  filter: [number, number];
 }
 
 export interface Location {

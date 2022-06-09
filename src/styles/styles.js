@@ -7,7 +7,6 @@ export const defaultCircleStyle = {
 export const defaultPolygonStyle = {
   weight: 1,
   fillOpacity: 0.8,
-
 }
 
 export const defaultStyle = {

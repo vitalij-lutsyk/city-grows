@@ -1,3 +1,13 @@
+const apiParams = {
+  baseUrl: 'https://www.overpass-api.de/api/interpreter',
+  expectedType: 'json',
+  expectedDataRules: [
+    'relation["building"]["start_date"]',
+    'way["building"]["start_date"]'
+  ],
+  endParams: 'out geom',
+};
+
 export const urls = {
   overpassApi: (mapBoundaries) => {
     const { baseUrl, expectedType, expectedDataRules, endParams } = apiParams
@@ -7,14 +17,4 @@ export const urls = {
   baseMap: 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png',
   osmCopyright: 'https://www.openstreetmap.org/copyright',
   wiki: (article) => `https://wikipedia.org/wiki/${article}`
-}
-
-const apiParams = {
-  baseUrl: 'https://www.overpass-api.de/api/interpreter',
-  expectedType: 'json',
-  expectedDataRules: [
-    'relation["building"]["start_date"]',
-    'way["building"]["start_date"]'
-  ],
-  endParams: 'out geom',
-}
+};

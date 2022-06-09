@@ -83,14 +83,15 @@ export const periodsByFirstYear = {
 export const getPeriodsWithStylesByYear = function (feature) {
   const year = +feature.properties.start_date;
   const type = feature.geometry.type;
+  let style = {...defaultStyle};
   if (type === "Polygon") {
-    Object.assign(defaultStyle, defaultPolygonStyle);
+    style = {...style, ...defaultPolygonStyle};
   }
   if (type === "Point") {
-    Object.assign(defaultStyle, defaultCircleStyle);
+    style = {...style, ...defaultCircleStyle};
   }
   const mappedYear = +Object.keys(periodsByFirstYear)
     .reverse()
     .find((y) => y <= year);
-  return Object.assign(defaultStyle, periodsByFirstYear[mappedYear]);
+  return {...style, ...periodsByFirstYear[mappedYear]};
 };

@@ -1,16 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Box, Slider, styled } from "@mui/material";
 import getIsPortraitScreenMode from "../utils/getOrientation";
-
-interface SliderProps {
-  value: number | Array<number>;
-  setValue: (
-    event: Event,
-    value: number | number[],
-    activeThumb: number
-  ) => void;
-  options: Array<any>;
-}
+import { FilterContext } from "../context/filter";
+import { debounce } from "../utils/debounce";
 
 function valuetext(value: number) {
   return `${value} year`;
@@ -45,24 +37,44 @@ const StyledSlider = styled(Slider)((props) => ({
   },
 }));
 
-export default function YearsFilter(props: SliderProps) {
-  const { value, setValue, options } = props;
+export default function YearsFilter() {
+  const { filter, setFilter, years } = useContext(FilterContext);
 
   const isPortraitScreenMode = useMemo(() => getIsPortraitScreenMode(), []);
 
   const [min, setMin] = useState(0);
   const [max, setMax] = useState(2022);
   const [rangeStep, setRangeStep] = useState(100);
+  const [ownValue, setOwnValue] = useState(filter);
+  let debounceFn: Function | null = null;
 
   useEffect(() => {
-    if (options.length) {
-      const _min = Math.min(...options);
-      const _max = Math.max(...options);
+    if (years.length) {
+      const _min = Math.min(...years);
+      const _max = Math.max(...years);
       setMin(_min);
       setMax(_max);
       setRangeStep(Math.round((_max - _min) / (isPortraitScreenMode ? 8 : 30)));
     }
-  }, [options, isPortraitScreenMode]);
+  }, [years, isPortraitScreenMode]);
+
+  useEffect(() => {
+    handleChange([min, max]);
+  }, [min, max]);
+
+  const handleChange = (value: Array<number>) => {
+    setOwnValue(value);
+    debounceFilterChange(value);
+  }
+
+  const debounceFilterChange = (value: Array<number>) => {
+    if (!debounceFn) {
+      debounceFn = debounce(() => {
+        setFilter(value)
+      }, 60);
+    }
+    debounceFn && debounceFn();
+  };
 
   const getMarks = () => {
     const marks: Array<{ label: string; value: number }> = [];
@@ -97,9 +109,9 @@ export default function YearsFilter(props: SliderProps) {
         valueLabelDisplay="auto"
         aria-labelledby="builds-years-slider"
         defaultValue={[min, max]}
-        value={value}
+        value={ownValue}
         orientation={"horizontal"}
-        onChange={setValue}
+        onChange={(_, value) => handleChange(value as [number, number])}
         min={min}
         step={1}
         max={max}

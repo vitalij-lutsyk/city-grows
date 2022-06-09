@@ -10,7 +10,7 @@ interface Osm3s {
   timestamp_osm_base: string;
 }
 
-interface OverpassApiResItem {
+export interface OverpassApiResItem {
   bounds: Bounds;
   geometry: Array<Geometry>;
   id: number;
