@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/city-grows/static/css/main.bab46548.css",
-    "main.js": "/city-grows/static/js/main.c96d41be.js",
+    "main.css": "/city-grows/static/css/main.3cff057a.css",
+    "main.js": "/city-grows/static/js/main.de835b4f.js",
     "static/js/787.fc0e6ea9.chunk.js": "/city-grows/static/js/787.fc0e6ea9.chunk.js",
     "index.html": "/city-grows/index.html",
-    "main.bab46548.css.map": "/city-grows/static/css/main.bab46548.css.map",
-    "main.c96d41be.js.map": "/city-grows/static/js/main.c96d41be.js.map",
+    "main.3cff057a.css.map": "/city-grows/static/css/main.3cff057a.css.map",
+    "main.de835b4f.js.map": "/city-grows/static/js/main.de835b4f.js.map",
     "787.fc0e6ea9.chunk.js.map": "/city-grows/static/js/787.fc0e6ea9.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.bab46548.css",
-    "static/js/main.c96d41be.js"
+    "static/css/main.3cff057a.css",
+    "static/js/main.de835b4f.js"
   ]
 }
