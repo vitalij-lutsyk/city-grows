@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
 import { Map } from 'leaflet';
@@ -9,9 +9,11 @@ import { defaultStartPoint } from "../constants/default-start-point";
 import { urls } from "../constants/base-urls";
 import { Location } from "../interfaces/map.interface";
 import BuildingsComponent from "./Buildings";
+import { useLegend } from "./hooks";
 
 const MapEventHandler = () => {
   const [, setSearchParams] = useSearchParams();
+  const { createLegend } = useLegend();
 
   const updateUrlCoordinates = (_map: Map): void => {
     const { lat, lng } = _map.getCenter();
@@ -30,6 +32,10 @@ const MapEventHandler = () => {
       updateUrlCoordinates(map);
     },
   });
+
+  useEffect(() => {
+    createLegend(map);
+  }, []);
 
   return null;
 };
