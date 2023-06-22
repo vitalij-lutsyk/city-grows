@@ -66,8 +66,8 @@ export const getYears = (buildings: Buildings): Array<number> => {
 
 export const buildPopup = (layer: any) => {
   const {
-    ["addr:housenumber"]: housenumber,
-    ["addr:street"]: street,
+    "addr:housenumber": housenumber,
+    "addr:street": street,
     name,
     wikipedia: wikiArticleUrl,
   } = layer.feature.properties;

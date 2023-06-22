@@ -21,7 +21,7 @@ const Spinner = () => {
             justifyContent: "center",
           }}
         >
-          <Circles arialLabel="loading-indicator" />
+          <Circles ariaLabel="loading-indicator" />
         </div>
       )}
     </div>
