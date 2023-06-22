@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef } from "react";
 import axios from "axios";
-import { useMapEvent } from "react-leaflet";
-import { Map, GeoJSON, Layer, LayerGroup } from "leaflet";
+import { useMapEvents } from "react-leaflet";
+import { Map, GeoJSON, Layer, LayerGroup, LeafletEvent } from "leaflet";
 import { Feature, FeatureCollection } from "geojson";
 import "leaflet/dist/leaflet.css";
 
@@ -19,7 +19,19 @@ import { getPeriodsWithStylesByYear } from "../data/periods";
 import { FilterContext } from "../context/filter";
 
 const BuildingsComponent = () => {
-  const map: Map = useMapEvent("dragend", () => fetchBuildings());
+  const map: Map = useMapEvents({
+    dragend() {
+      fetchBuildings();
+    },
+    zoomend(e: LeafletEvent) {
+      if (e.target.getZoom() < prevZoom.current) {
+        fetchBuildings();
+      }
+      prevZoom.current = e.target.getZoom();
+    }
+  });
+
+  const prevZoom = useRef(map.getZoom());
   const { filter = [0, 0], setYears } = useContext(FilterContext);
   const spinner = useContext(SpinnerContext);
 
