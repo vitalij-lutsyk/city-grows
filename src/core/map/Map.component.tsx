@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import "../../styles/legend.css";
 import { urls } from "../api/api.constants";
 import BuildingsComponent from "../../features/buildings/Buildings.component";
-import StreetsComponent from "../../features/streets/Streets.component";
+// import StreetsComponent from "../../features/streets/Streets.component";
 
 import MapEventHandler from "./MapEventHandler";
 import { defaultStartPoint } from "./map.constants";
@@ -35,7 +35,7 @@ const MapWrapper = () => {
       <TileLayer attribution={`&copy; <a href="${urls.osmCopyright}">OpenStreetMap</a> contributors`} url={urls.baseMap} />
       <MapEventHandler />
       <BuildingsComponent />
-      <StreetsComponent />
+      {/* <StreetsComponent /> */}
     </MapContainer>
   );
 }
