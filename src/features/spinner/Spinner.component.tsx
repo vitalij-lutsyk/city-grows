@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Circles } from "react-loader-spinner";
-import { SpinnerContext } from "../context/spinner";
+import { SpinnerContext } from "./spinner.context";
 
 const Spinner = () => {
   const { visible } = useContext(SpinnerContext)

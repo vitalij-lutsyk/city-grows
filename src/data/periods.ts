@@ -1,23 +1,15 @@
-import {
-  defaultStyle,
-  defaultPolygonStyle,
-  defaultCircleStyle,
-} from "../styles/styles";
+import { colors } from "../styles/colors";
 
-const colors = {
-  indigoDye: "#304966ff",
-  yInMnBlue: "#355070ff",
-  chineseViolet: "#6d597aff",
-  roseDust: "#a96275ff",
-  candyPink: "#e56b6fff",
-  tumbleweed: "#eaac8bff",
-  apricot: "#eebba0ff",
-  mediumChampagne: "#f9c758",
-  greenLizard: "#bced35ff",
-  screaminGreen: "#75f048ff",
-};
+interface Data {
+  name: string;
+  from: number;
+  to: number;
+  color: string;
+}
 
-export const periodsByFirstYear = {
+export const periodsByFirstYear: {
+  [key: number]: Data;
+} = {
   1256: {
     name: "Середньовіччя",
     from: 1256,
@@ -78,20 +70,4 @@ export const periodsByFirstYear = {
     to: 2020,
     color: colors.screaminGreen,
   },
-};
-
-export const getPeriodsWithStylesByYear = function (feature) {
-  const year = +feature.properties.start_date;
-  const type = feature.geometry.type;
-  let style = {...defaultStyle};
-  if (type === "Polygon") {
-    style = {...style, ...defaultPolygonStyle};
-  }
-  if (type === "Point") {
-    style = {...style, ...defaultCircleStyle};
-  }
-  const mappedYear = +Object.keys(periodsByFirstYear)
-    .reverse()
-    .find((y) => y <= year);
-  return {...style, ...periodsByFirstYear[mappedYear]};
 };

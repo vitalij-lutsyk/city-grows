@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Box, Slider, styled } from "@mui/material";
-import getIsPortraitScreenMode from "../utils/getOrientation";
-import { FilterContext } from "../context/filter";
-import { debounce } from "../utils/debounce";
+import getIsPortraitScreenMode from "../../utils/getOrientation";
+import { FilterContext } from "./filter";
+import { debounce } from "../../utils/debounce";
 
 function valuetext(value: number) {
   return `${value} year`;

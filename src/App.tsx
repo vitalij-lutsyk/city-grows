@@ -2,11 +2,11 @@ import React from "react";
 import { BrowserRouter } from "react-router-dom";
 
 import "./styles/App.css";
-import Map from "./components/Map";
-import YearsFilter from "./components/Slider";
-import Spinner from "./components/Spinner";
-import SpinnerProvider from "./context/spinner";
-import FilterProvider from "./context/filter";
+import Map from "./core/map/Map.component";
+import Spinner from "./features/spinner/Spinner.component";
+import SpinnerProvider from "./features/spinner/spinner.context";
+import YearsFilter from "./features/filter/Slider";
+import FilterProvider from "./features/filter/filter";
 
 function App() {
   return (

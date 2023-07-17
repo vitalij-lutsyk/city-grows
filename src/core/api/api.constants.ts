@@ -9,12 +9,12 @@ const apiParams = {
 };
 
 export const urls = {
-  overpassApi: (mapBoundaries) => {
+  overpassApi: (mapBoundaries: string) => {
     const { baseUrl, expectedType, expectedDataRules, endParams } = apiParams
     const expectedData = expectedDataRules.map(rule => `${rule}(${mapBoundaries});`).join('')
     return `${baseUrl}?data=[out:${expectedType}];(${expectedData});${endParams};`
   },
   baseMap: 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png',
   osmCopyright: 'https://www.openstreetmap.org/copyright',
-  wiki: (article) => `https://wikipedia.org/wiki/${article}`
+  wiki: (article: string) => `https://wikipedia.org/wiki/${article}`
 };
