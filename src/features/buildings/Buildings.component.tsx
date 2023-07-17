@@ -2,21 +2,21 @@ import React, { useContext, useEffect, useRef } from "react";
 import axios from "axios";
 import { useMapEvents } from "react-leaflet";
 import { Map, GeoJSON, Layer, LayerGroup, LeafletEvent } from "leaflet";
-import { Feature, FeatureCollection } from "geojson";
+import { FeatureCollection } from "geojson";
 import "leaflet/dist/leaflet.css";
 
-import { urls } from "../constants/base-urls";
-import { Buildings, MapLayerGroups } from "../interfaces/map.interface";
-import { SpinnerContext } from "../context/spinner";
+import { urls } from "../../core/api/api.constants";
+import { Building, Buildings } from "./buildings.interfaces";
+import { SpinnerContext } from "../spinner/spinner.context";
 import {
   buildPopup,
   checkIsBuildingInRange,
-  getYears,
   prepareBuildings,
-} from "../utils/buildings";
-import { getMapBoundaries } from "../utils/map";
-import { getPeriodsWithStylesByYear } from "../data/periods";
-import { FilterContext } from "../context/filter";
+} from "./buildings.utils";
+import { getMapBoundaries } from "../../utils/map";
+import { FilterContext } from "../filter/filter";
+import { MapLayerGroups } from "../../core/map/map.interface";
+import { getYears, getPeriodsWithStylesByYear } from "../../core/utils";
 
 const BuildingsComponent = () => {
   const map: Map = useMapEvents({
@@ -32,7 +32,7 @@ const BuildingsComponent = () => {
   });
 
   const prevZoom = useRef(map.getZoom());
-  const { filter = [0, 0], setYears } = useContext(FilterContext);
+  const { filter = [0, 0], years, setYears } = useContext(FilterContext);
   const spinner = useContext(SpinnerContext);
 
   const buildings = useRef<Buildings>([]);
@@ -66,7 +66,7 @@ const BuildingsComponent = () => {
   };
 
   const onEachFeature = (
-    feature: Feature,
+    feature: Building,
     featureLayer: Layer,
   ): void => {
     // does layerGroup already exist? if not create it and add to map
@@ -83,6 +83,7 @@ const BuildingsComponent = () => {
     featureLayer
       .bindPopup(buildPopup)
       .bindTooltip((layer: any) => layer.feature.properties.start_date);
+
     lg.addLayer(featureLayer);
   };
 
@@ -116,8 +117,8 @@ const BuildingsComponent = () => {
       }
 
       spinner.hide();
-      const _years = getYears(_buildings);
-      setYears(_years);
+      const _years = getYears(_buildings, ['start_date']);
+      setYears(years.length < 3 ? _years : [...years, ..._years]);
     } catch (e) {
       console.error("e", e);
     } finally {

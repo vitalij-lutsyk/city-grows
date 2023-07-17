@@ -1,9 +1,9 @@
 
 import { Feature, Geometry, Polygon } from "geojson";
 
-import { OverpassApiRes, OverpassApiResItem } from "../interfaces/api-response";
-import { Buildings } from "../interfaces/map.interface";
-import { urls } from "../constants/base-urls";
+import { OverpassApiRes, OverpassApiResItem } from "../../core/api/api.interfaces";
+import { urls } from "../../core/api/api.constants";
+import { Building, BuildingTags, Buildings } from "./buildings.interfaces";
 
 export const checkIsBuildingInRange = (
   feature: Feature<Geometry, any>,
@@ -13,7 +13,7 @@ export const checkIsBuildingInRange = (
   return startDate >= filter[0] && startDate <= filter[1];
 };
 
-export const prepareBuildings = (data: OverpassApiRes): Buildings => {
+export const prepareBuildings = (data: OverpassApiRes<BuildingTags>): Buildings => {
   const { elements: buildings } = data;
   return buildings
     .map(constructBuildingShape)
@@ -24,15 +24,15 @@ export const prepareBuildings = (data: OverpassApiRes): Buildings => {
 };
 
 const constructBuildingShape = (
-  build: OverpassApiResItem
-): Feature<Polygon> => {
+  build: OverpassApiResItem<BuildingTags>
+): Building => {
   const geometry: Polygon = {
     type: "Polygon",
     coordinates: [],
   };
-  const preparedBuild: Feature<Polygon> = {
+  const preparedBuild: Building = {
     type: "Feature",
-    properties: { id: build.id, ...build.tags },
+    properties: { ...build.tags, id: build.id.toString() },
     geometry,
   };
   if (build.type === "way") {
@@ -47,21 +47,6 @@ const constructBuildingShape = (
     geometry.coordinates = [mappedCoords];
   }
   return preparedBuild;
-};
-
-export const getYears = (buildings: Buildings): Array<number> => {
-  const result: { [key: string]: number } = {};
-  buildings
-    .map((build) => build.properties?.start_date)
-    .forEach((year) => {
-      if (!year || isNaN(year) || year in result) {
-        return;
-      }
-      result[year] = year;
-    });
-  return Object.values(result).filter(
-    (year) => year <= new Date().getFullYear()
-  );
 };
 
 export const buildPopup = (layer: any) => {
