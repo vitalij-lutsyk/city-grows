@@ -1,4 +1,4 @@
-import { Feature, LineString, MultiLineString, Polygon, Point, Geometry } from "geojson";
+import { Feature, Geometry } from "geojson";
 
 import {
   defaultStyle,
