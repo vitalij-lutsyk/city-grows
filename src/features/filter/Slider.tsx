@@ -37,7 +37,7 @@ const StyledSlider = styled(Slider)((props) => ({
   },
 }));
 
-export default function YearsFilter() {
+const YearsFilter: React.FC = () => {
   const { filter, setFilter, years } = useContext(FilterContext);
 
   const isPortraitScreenMode = useMemo(() => getIsPortraitScreenMode(), []);
@@ -58,15 +58,6 @@ export default function YearsFilter() {
     }
   }, [years, isPortraitScreenMode]);
 
-  useEffect(() => {
-    handleChange([min, max]);
-  }, [min, max]);
-
-  const handleChange = (value: Array<number>) => {
-    setOwnValue(value);
-    debounceFilterChange(value);
-  }
-
   const debounceFilterChange = (value: Array<number>) => {
     if (!debounceFn) {
       debounceFn = debounce(() => {
@@ -75,6 +66,11 @@ export default function YearsFilter() {
     }
     debounceFn && debounceFn();
   };
+
+  const handleChange = (value: Array<number>) => {
+    setOwnValue(value);
+    debounceFilterChange(value);
+  }
 
   const getMarks = () => {
     const marks: Array<{ label: string; value: number }> = [];
@@ -86,6 +82,10 @@ export default function YearsFilter() {
     }
     return marks;
   };
+
+  useEffect(() => {
+    handleChange([min, max]);
+  }, [min, max]);
 
   return (
     <Box
@@ -122,3 +122,5 @@ export default function YearsFilter() {
     </Box>
   );
 }
+
+export default YearsFilter;

@@ -5,7 +5,7 @@ import { useMapEvents } from "react-leaflet";
 
 import { useLegend } from "./useLegend";
 
-const MapEventHandler = () => {
+const MapEventHandler: React.FC = () => {
   const [, setSearchParams] = useSearchParams();
   const { createLegend } = useLegend();
 

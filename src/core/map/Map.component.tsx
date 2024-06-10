@@ -11,7 +11,7 @@ import MapEventHandler from "./MapEventHandler";
 import { defaultStartPoint } from "./map.constants";
 import { Location } from "./map.interface";
 
-const MapWrapper = () => {
+const MapWrapper: React.FC = () => {
   const startLocation = useMemo((): Location => {
     const params = new URL(document.location.href).searchParams;
     const lat = params.get("lat");

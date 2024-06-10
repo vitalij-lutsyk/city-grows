@@ -18,7 +18,7 @@ import { FilterContext } from "../filter/filter";
 import { MapLayerGroups } from "../../core/map/map.interface";
 import { getYears, getPeriodsWithStylesByYear } from "../../core/utils";
 
-const BuildingsComponent = () => {
+const BuildingsComponent: React.FC = () => {
   const map: Map = useMapEvents({
     dragend() {
       fetchBuildings();
