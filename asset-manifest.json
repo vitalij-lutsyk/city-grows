@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/city-grows/static/css/main.3cff057a.css",
-    "main.js": "/city-grows/static/js/main.de835b4f.js",
-    "static/js/787.fc0e6ea9.chunk.js": "/city-grows/static/js/787.fc0e6ea9.chunk.js",
+    "main.css": "/city-grows/static/css/main.63a97539.css",
+    "main.js": "/city-grows/static/js/main.cc37ca07.js",
+    "static/js/787.354e6ec2.chunk.js": "/city-grows/static/js/787.354e6ec2.chunk.js",
     "index.html": "/city-grows/index.html",
-    "main.3cff057a.css.map": "/city-grows/static/css/main.3cff057a.css.map",
-    "main.de835b4f.js.map": "/city-grows/static/js/main.de835b4f.js.map",
-    "787.fc0e6ea9.chunk.js.map": "/city-grows/static/js/787.fc0e6ea9.chunk.js.map"
+    "main.63a97539.css.map": "/city-grows/static/css/main.63a97539.css.map",
+    "main.cc37ca07.js.map": "/city-grows/static/js/main.cc37ca07.js.map",
+    "787.354e6ec2.chunk.js.map": "/city-grows/static/js/787.354e6ec2.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.3cff057a.css",
-    "static/js/main.de835b4f.js"
+    "static/css/main.63a97539.css",
+    "static/js/main.cc37ca07.js"
   ]
 }
