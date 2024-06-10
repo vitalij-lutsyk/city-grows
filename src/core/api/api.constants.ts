@@ -14,7 +14,7 @@ export const urls = {
     const expectedData = expectedDataRules.map(rule => `${rule}(${mapBoundaries});`).join('')
     return `${baseUrl}?data=[out:${expectedType}];(${expectedData});${endParams};`
   },
-  baseMap: 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png',
+  baseMap: 'https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}.png',
   osmCopyright: 'https://www.openstreetmap.org/copyright',
   wiki: (article: string) => `https://wikipedia.org/wiki/${article}`
 };
