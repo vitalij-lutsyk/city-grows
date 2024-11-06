@@ -24,6 +24,7 @@ export const styles = {
     },
     "& .MuiSlider-markLabel": {
       right: 10,
+      userSelect: 'none',
     },
   }
 };
