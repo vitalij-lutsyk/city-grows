@@ -7,9 +7,11 @@ interface Data {
   color: string;
 }
 
-export const periodsByFirstYear: {
+interface Period {
   [key: number]: Data;
-} = {
+}
+
+export const periodsByFirstYear: Period = {
   1256: {
     name: "Середньовіччя",
     from: 1256,

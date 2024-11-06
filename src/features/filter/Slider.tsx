@@ -2,40 +2,14 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Box, Slider, styled } from "@mui/material";
 import getIsPortraitScreenMode from "../../utils/getOrientation";
 import { FilterContext } from "./filter";
+import { styles } from './styles';
 import { debounce } from "../../utils/debounce";
 
 function valuetext(value: number) {
   return `${value} year`;
 }
 
-const styles = {
-  sx: {
-    height: 50,
-  },
-  left: 0,
-  right: 0,
-  top: undefined,
-  bottom: 0,
-  pr: 4,
-  pl: 4,
-  pt: 0,
-  pb: 2,
-};
-
-const StyledSlider = styled(Slider)((props) => ({
-  marginRight: 0,
-  "& .MuiSlider-thumb": {},
-  "& .MuiSlider-valueLabel": {},
-  "& .MuiSlider-track": {},
-  "& .MuiSlider-rail": {},
-  "& .MuiSlider-mark": {
-    left: -10,
-    width: 10,
-  },
-  "& .MuiSlider-markLabel": {
-    right: 10,
-  },
-}));
+const StyledSlider = styled(Slider)((props) => styles.slider);
 
 const YearsFilter: React.FC = () => {
   const { filter, setFilter, years } = useContext(FilterContext);
@@ -89,17 +63,17 @@ const YearsFilter: React.FC = () => {
 
   return (
     <Box
-      sx={styles.sx}
+      sx={styles.wrapper.sx}
       position={"fixed"}
-      left={styles.left}
-      right={styles.right}
-      top={styles.top}
-      bottom={styles.bottom}
+      left={styles.wrapper.left}
+      right={styles.wrapper.right}
+      top={styles.wrapper.top}
+      bottom={styles.wrapper.bottom}
       zIndex={1000}
-      pr={styles.pr}
-      pl={styles.pl}
-      pt={styles.pt}
-      pb={styles.pb}
+      pr={styles.wrapper.pr}
+      pl={styles.wrapper.pl}
+      pt={styles.wrapper.pt}
+      pb={styles.wrapper.pb}
       style={{
         backgroundColor: `rgba(255, 255, 255, 0.61)`,
       }}

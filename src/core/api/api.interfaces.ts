@@ -1,14 +1,4 @@
-interface Geometry {
-  lat: number;
-  lon: number;
-}
-
-interface Bounds {
-  maxlat: number;
-  maxlon: number;
-  minlat: number;
-  minlon: number;
-}
+import { Bounds, Geometry } from "../map/map.interface";
 
 export interface OverpassApiRes<T> {
   elements: Array<OverpassApiResItem<T>>;
